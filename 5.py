@@ -132,69 +132,8 @@ def on_draw():
     window.clear()
     glClear(GL_COLOR_BUFFER_BIT)
     glLoadIdentity()
-def draw_stuff():
-    x_min = min(v_x)
-    x_max = max(v_x)
-    y_min = min(v_y)
-    y_max = max(v_y)
-    x_avg = ((float(x_max)) + (float(x_min))) / 2
-    y_avg = ((float(y_max)) + (float(y_min))) / 2
-    l_w = float(x_avg)
-    l_h = float(y_avg)
-    he_hf = height / 2
-    wi_hf = width / 2
-    ratio_width = ((width) - (x_min)) / (x_max-x_min)
-    ratio_height = ((height) - (y_min)) / (y_max-y_min)
-    if ratio_width > ratio_height:
-        k = ratio_height * 0.5
-    else:
-        k = ratio_width * 0.5
-    print("k = ", k, "h_f = ", he_hf, "wi_hf = ", wi_hf, "x_avg = ", x_avg, "y_avg", y_avg," l_w =", l_w, "h_w =", l_h)
-    for i in range(len(f_1)):
-        x1 = float(v_x[f_1[i]])
-        y1 = float(v_y[f_1[i]])
-        z1 = float(v_z[f_1[i]])
-        x2 = float(v_x[f_2[i]])
-        y2 = float(v_y[f_2[i]])
-        z2 = float(v_z[f_2[i]])
-        x3 = float(v_x[f_3[i]])
-        y3 = float(v_y[f_3[i]])
-        z3 = float(v_z[f_3[i]])
-        print(x1, y1, z1, x2, y2, z2, x3, y3, z3)
-        a = (y2-y1)*(z3-z1)-(z2-z1)*(y3-y1)
-        b = -(x2-x1)*(z3-z1)+(z2-z1)*(x3-x1)
-        c = (x2-x1)*(y3-y1)-(y2-y1)*(x3-x1)
-        d = -x1*a - y1 * b - z1 * c
-        A.append(a)
-        B.append(b)
-        C.append(c)
-        D.append(d)
-        first = np.array([x1, y1, z1, 1])
-        second = np.array([x2, y2, z2, 1])
-        third = np.array([x3, y3, z3, 1])
+    batch.draw()
 
-        rotation_angle = 45
-        rotation_matrix = transformacije(ociste_x, ociste_y, ociste_z,
-                        glediste_x, glediste_y, glediste_z)      
-        result_first = np.dot(rotation_matrix, first)
-        result_second = np.dot(rotation_matrix, second)
-        result_third = np.dot(rotation_matrix, third)
-        vertices.extend([
-            (result_first[0] - l_w) * k + wi_hf, (result_first[1] - l_h) * k + he_hf,
-            (result_second[0]- l_w) * k + wi_hf, (result_second[1] - l_h)* k + he_hf,
-            (result_third[0] - l_w) * k + wi_hf, (result_third[1] - l_h) * k + he_hf
-        ])
-        
-        pyglet.gl.glVertex2f((result_first[0] - l_w) * k + wi_hf, (result_first[1] - l_h) * k + he_hf)
-        pyglet.gl.glVertex2f((result_second[0] - l_w) * k + wi_hf, (result_second[1] - l_h) * k + he_hf)
-
-        pyglet.gl.glVertex2f((result_second[0] - l_w) * k + wi_hf, (result_second[1] - l_h) * k + he_hf)
-        pyglet.gl.glVertex2f((x3 - l_w) * k + wi_hf, (y3 - l_h) * k + he_hf)
-
-        pyglet.gl.glVertex2f((result_third[0] - l_w) * k + wi_hf, (result_third[1] - l_h) * k + he_hf)
-        pyglet.gl.glVertex2f((result_first[0] - l_w) * k + wi_hf, (result_first[1] - l_h) * k + he_hf)
-
-        pyglet.gl.glEnd()
 
 
 @window.event
@@ -264,16 +203,30 @@ def draw_stuff():
             (result_third[0] - l_w) * k + wi_hf, (result_third[1] - l_h) * k + he_hf
         ])
         
-        pyglet.gl.glVertex2f((result_first[0] - l_w) * k + wi_hf, (result_first[1] - l_h) * k + he_hf)
-        pyglet.gl.glVertex2f((result_second[0] - l_w) * k + wi_hf, (result_second[1] - l_h) * k + he_hf)
-
-        pyglet.gl.glVertex2f((result_second[0] - l_w) * k + wi_hf, (result_second[1] - l_h) * k + he_hf)
-        pyglet.gl.glVertex2f((x3 - l_w) * k + wi_hf, (y3 - l_h) * k + he_hf)
-
-        pyglet.gl.glVertex2f((result_third[0] - l_w) * k + wi_hf, (result_third[1] - l_h) * k + he_hf)
-        pyglet.gl.glVertex2f((result_first[0] - l_w) * k + wi_hf, (result_first[1] - l_h) * k + he_hf)
-
-        pyglet.gl.glEnd()
+        batch.add(2, pyglet.gl.GL_LINES, None,
+                  ('v2f', (
+                   (result_first[0] - l_w) * k + wi_hf,
+                   (result_first[1] - l_h) * k + he_hf,
+                   (result_second[0] - l_w) * k + wi_hf,
+                   (result_second[1] - l_h) * k + he_hf)),
+                  ('c3B', (255, 0, 255, 0, 255, 0))
+                  )
+        batch.add(2, pyglet.gl.GL_LINES, None,
+                  ('v2f', (
+                   (result_second[0] - l_w) * k + wi_hf,
+                   (result_second[1] - l_h) * k + he_hf,
+                   (x3 - l_w) * k + wi_hf,
+                   (y3 - l_h) * k + he_hf)),
+                  ('c3B', (255, 0, 255, 0, 255, 0))
+                  )
+        batch.add(2, pyglet.gl.GL_LINES, None,
+                  ('v2f', (
+                   (result_third[0] - l_w) * k + wi_hf,
+                   (result_third[1] - l_h) * k + he_hf,
+                   (result_first[0] - l_w) * k + wi_hf,
+                   (result_first[1] - l_h) * k + he_hf)),
+                  ('c3B', (255, 0, 255, 0, 255, 0))
+                  )
 
 
 file = open("kocka.obj", "r")
